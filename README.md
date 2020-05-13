@@ -1,5 +1,5 @@
 ## FLEX-Faithful-Linguistic-Explanations-for-Neural-Net-Based-Model-Decisions
-Tensorflow implementation of [FLEX: Faithful Linguistic Explanations for Neural Net Based Model Decisions] (https://www.aaai.org/ojs/index.php/AAAI/article/view/4100) published in AAAI 2019
+Tensorflow implementation of [FLEX: Faithful Linguistic Explanations for Neural Net Based Model Decisions](https://www.aaai.org/ojs/index.php/AAAI/article/view/4100) published in AAAI 2019
 
 Abstract
 ----------
