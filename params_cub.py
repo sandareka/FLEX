@@ -9,8 +9,8 @@ TEST_NO_SENT_PER_IMAGE = "data/cub/test_no_sent_per_image.npy"
 
 # -------- Classifier parameters --------
 FEATURE_VECTOR_SIZE = 8192  # size of all features in the desired layer
-CLASSIFIER_PROTOTXT_FILE = 'models/cmpt-bilinear/ft_all.prototxt'  # path to prototxt file
-CLASSIFIER_WEIGHT_FILE = 'models/cmpt-bilinear/ft_all_iter_20000.caffemodel'  # path to weights file
+CLASSIFIER_PROTOTXT_FILE = 'classifiers/cmpt-bilinear/ft_all.prototxt'  # path to prototxt file
+CLASSIFIER_WEIGHT_FILE = 'classifiers/cmpt-bilinear/ft_all_iter_20000.caffemodel'  # path to weights file
 IMAGE_WIDTH = 512
 IMAGE_HEIGHT = 512
 LAYER_NAME = "bilinear_l2"  # layer name from which features are extracted
@@ -66,4 +66,4 @@ LEARNING_RATE = 5e-4
 LAMBDA_VALUE = 1e-1
 KEEP_PROB = 0.5
 DROPOUT = True
-MODEL_SAVE_FOLDER = '../Trained_Models/flex_20_1_5_20/'  # path to save the trained model
+MODEL_SAVE_FOLDER = 'trained_models/cub/'  # path to save the trained model
