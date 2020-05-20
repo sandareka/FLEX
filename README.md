@@ -26,17 +26,19 @@ Explaining the decisions of a Deep Learning Network is imperative to safeguard e
    ```unzip flex_cub_trained_model.zip -d trained_models/cub/```
 
 ## Generate Explanations
+
    To generate explanations using the trained model run following code.
    
-   ```python generate_explanations.py --model_version flex_v1 ```
+   ```python generate_explanations.py --model_version flex_v1```
    
    Generated explanations will be written to a text file in ```trained_models/cub/<<model_version>>``` folder.
   
   
  ## Train FLEX for CUB Dataset
-    If you want to change hyper parameters, please edit ```params_cup.py``` file. To train FLEX for cub run,
+ 
+   If you want to change hyper parameters, please edit ```params_cup.py``` file. To train FLEX for cub run,
    
-    ```python train_flex_cub.py````
+    ```python train_flex_cub.py```
    
    The trained weights will be saved to ```trained_models/cub/<<model_version>>```.
    
