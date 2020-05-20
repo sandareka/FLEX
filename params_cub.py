@@ -25,7 +25,7 @@ ALL_IMAGE_NAME_FILE = "data/images.txt"  # path to images name file
 IMAGE_FEATURE_SAVE_FOLDER = "data/cub/visual_features"  # folder to save activations and gradients
 TEXT_DESC_FOLDER = 'data/cub/text_c10'
 CLASS_NAMES_FILE = 'data/cub/classes.txt'
-TRAIN_IMAGE_NAMES = "data/cub/train_no_cub.txt"
+TRAIN_IMAGE_NAMES = "data/cub/train_no_cub.txt"  # Name of the file containing train images
 VAL_IMAGE_NAMES = "data/cub/val_no_cub.txt"
 TEST_IMAGE_NAMES = "data/cub/test_no_cub.txt"
 
@@ -66,4 +66,6 @@ LEARNING_RATE = 5e-4
 LAMBDA_VALUE = 1e-1
 KEEP_PROB = 0.5
 DROPOUT = True
-MODEL_SAVE_FOLDER = 'trained_models/cub/'  # path to save the trained model
+# MODEL_SAVE_FOLDER = 'trained_models/cub/'  # path to save the trained model
+MODEL_SAVE_FOLDER = '../Trained_Models/'  # path to save the trained model
+MODEL_VERSION = 'flex_v1'  # path to save the trained model

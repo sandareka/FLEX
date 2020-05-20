@@ -33,7 +33,7 @@ class FLEX(object):
 
         tf.reset_default_graph()
 
-        # Placeholders
+        # -------- Placeholders --------
         self.img_feats = tf.placeholder(tf.float32, [None, self.img_feature_size])
         self.batch_size = tf.placeholder(tf.int32, [])
         self.seq_lengths = tf.placeholder(tf.int32, [None])
@@ -50,10 +50,10 @@ class FLEX(object):
         self.initial_state2 = tf.contrib.rnn.LSTMStateTuple(self.c_state2, self.h_state2)
         self.initial_state1 = tf.contrib.rnn.LSTMStateTuple(self.c_state1, self.h_state1)
 
-        # Convert lstm output indices to one-hot vectors
+        # -------- Convert lstm output indices to one-hot vectors --------
         self.lstm_outputs = tf.one_hot(self.rnn_outputs_input, depth=self.vocab_size)
 
-        # Initialize word embedding
+        # -------- Initialize word embedding --------
         self.w_embedding = tf.Variable(tf.random_uniform([self.vocab_size, self.embedding_size], -1.0, 1.0))
         self.embed_word = tf.nn.embedding_lookup(self.w_embedding, self.rnn_inputs)
 
@@ -63,7 +63,7 @@ class FLEX(object):
 
         self.embed_visual_feats = tf.matmul(self.img_feats, self.img_embedding) + self.img_embedding_bias
 
-        # LSTM 1
+        # -------- LSTM 1 --------
         with tf.variable_scope('rnn1'):
             if self.dropout:
                 self.lstm_cell1 = tf.contrib.rnn.DropoutWrapper(tf.contrib.rnn.LSTMCell(self.num_hidden_lstm, state_is_tuple=True), output_keep_prob=self.keep_prob)
@@ -73,7 +73,7 @@ class FLEX(object):
             self.lstm_outputs1, self.lstm_states1 = tf.nn.dynamic_rnn(self.lstm_cell1, self.embed_word, dtype=tf.float32, sequence_length=self.seq_lengths,
                                                                       initial_state=self.initial_state1)
 
-        # LSTM2 embedding variables
+        # -------- LSTM2 embedding variables --------
         self.lstm2_embed_w = tf.Variable(normc_initializer(1.0)(
             [self.num_hidden_lstm + int(self.embed_visual_feats.get_shape()[-1]),
              self.num_hidden_lstm]))
@@ -81,12 +81,12 @@ class FLEX(object):
 
         self.hidden_projection = lambda x: tf.matmul(tf.concat([x, self.embed_visual_feats], axis=-1), self.lstm2_embed_w) + self.lstm2_embed_b
 
-        # Embed concatenation of visual feats and the output of LSTM1 for feed to LSTM2
+        # -------- Embed concatenation of visual feats and the output of LSTM1 for feed to LSTM2 --------
         self.lstm_outputs1 = tf.transpose(self.lstm_outputs1, [1, 0, 2])
         self.lstm_inputs2 = tf.map_fn(self.hidden_projection, self.lstm_outputs1)
         self.lstm_inputs2 = tf.transpose(self.lstm_inputs2, [1, 0, 2])
 
-        # LSTM 2
+        # -------- LSTM 2 --------
         with tf.variable_scope('rnn2'):
             if self.dropout:
                 self.lstm_cell2 = tf.contrib.rnn.DropoutWrapper(tf.contrib.rnn.LSTMCell(self.num_hidden_lstm, state_is_tuple=True), output_keep_prob=self.keep_prob)
@@ -96,30 +96,30 @@ class FLEX(object):
             self.lstm_outputs2, self.lstm_states2 = tf.nn.dynamic_rnn(self.lstm_cell2, self.lstm_inputs2, dtype=tf.float32, sequence_length=self.seq_lengths,
                                                                       initial_state=self.initial_state2)
 
-        # Output layer projection variables
+        # -------- Output layer projection variables --------
         self.output_w = tf.Variable(normc_initializer(1.0)(
             [self.num_hidden_lstm, self.vocab_size]))
         self.output_b = tf.Variable(tf.constant_initializer(0.0)((self.vocab_size,)), name="output_bias")
 
         self.logit_projection = lambda x: tf.matmul(x, self.output_w) + self.output_b
 
-        # Project output of LSTM to output layer
+        # -------- Project output of LSTM to output layer --------
         self.lstm_outputs2 = tf.transpose(self.lstm_outputs2, [1, 0, 2])
         self.final_logits = tf.map_fn(self.logit_projection, self.lstm_outputs2)
         self.final_logits = tf.transpose(self.final_logits, [1, 0, 2])
         self.sentence_word_probs = tf.nn.softmax(self.final_logits, dim=-1)
 
-        # Calculate relevance score
+        # -------- Calculate relevance score --------
         score = tf.multiply(self.sentence_word_probs, self.scores_input)
         score = tf.reduce_max(score, 2)
 
-        # Calculate cross entropy loss
+        # -------- Calculate cross entropy loss --------
         self.cross_entropy_loss = self.calculate_cross_entropy(score)  # check here
 
-        # Calculate final loss
+        # -------- Calculate final loss --------
         self.final_loss = tf.reduce_mean(self.cross_entropy_loss)
 
-        # Optimizer
+        # -------- Optimizer --------
         self.global_step = tf.Variable(0, name='global_step', trainable=False)
         self.decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 100000, 0.96, staircase=True)
         self.optimize_step = tf.train.AdamOptimizer(self.decay_learning_rate).minimize(self.final_loss)
@@ -128,7 +128,7 @@ class FLEX(object):
         self.sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
         self.sess.run(tf.global_variables_initializer())
 
-    def calculate_cross_entropy(self, relevance_score):
+    def calculate_cross_entropy(self, relevance_score):  # A function from sbarratt's interpnet code
         ones = tf.ones((self.batch_size, self.max_length), dtype=tf.int32)
         zeros = tf.zeros((self.batch_size, self.max_length), dtype=tf.int32)
         lengths_transposed = tf.reshape(self.seq_lengths, [-1, 1])
@@ -146,17 +146,47 @@ class FLEX(object):
         return cross_entropy
 
     def get_visual_feature_batch(self, filename, start, end, index):
+        """
+        Retrieve a batch of image features from respective .h5 file
+        :param filename:
+        :param start: start index of the batch
+        :param end:
+        :param index:
+        :return: feature_batch
+        """
         f = tables.open_file(filename, mode='r')
         feature_batch = f.root.data[index[start:end], :]
         return feature_batch
 
     def save(self, f):
+        """
+        Save the trained model
+        :param f: model path
+        :return:
+        """
         self.saver.save(self.sess, f)
 
     def load(self, f):
+        """
+        Restore the trained model
+        :param f: model path
+        :return:
+        """
         self.saver.restore(self.sess, f)
 
     def train_epoch(self, visual_feat_file, x_word_seq, y_word_seq, lengths, words_relevance_scores, learning_rate, batch_size, keep_prob):
+        """
+        Train model for one epoch
+        :param visual_feat_file:
+        :param x_word_seq:
+        :param y_word_seq:
+        :param lengths:
+        :param words_relevance_scores:
+        :param learning_rate:
+        :param batch_size:
+        :param keep_prob:
+        :return:
+        """
 
         epoch_loss = 0.0
         no_iterations = 0
@@ -202,6 +232,17 @@ class FLEX(object):
         return epoch_loss / no_iterations
 
     def validate_epoch(self, visual_feat_file, x_word_seq, y_word_seq, lengths, words_relevance_scores, batch_size, keep_prob):
+        """
+        Validate the training model after one epoch
+        :param visual_feat_file:
+        :param x_word_seq:
+        :param y_word_seq:
+        :param lengths:
+        :param words_relevance_scores:
+        :param batch_size:
+        :param keep_prob:
+        :return:
+        """
 
         c_initial1, h_initial1 = self.sess.run([self.zero_initial_state1], feed_dict={
             self.batch_size: batch_size
@@ -241,6 +282,13 @@ class FLEX(object):
         return val_loss/no_iterations
 
     def get_explanation(self, image, id_to_word, word_to_id):
+        """
+        Generate explanations using a trained model
+        :param image:
+        :param id_to_word:
+        :param word_to_id:
+        :return: de-tokenized word sequence
+        """
         c1, h1 = self.sess.run([self.zero_initial_state1], feed_dict={
             self.batch_size: 1
         })[0]

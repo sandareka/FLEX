@@ -8,16 +8,22 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 
 def train_flex():
+    """
+    Train flex model using parameters specified in 'param_cub.py' file
+    :return:
+    """
     data_dictionary_name = params.DATA_DIC_NAME
     train_relevance_scores_file = params.DECISION_RELEVANCE_SCORE_TRAIN_EXPANDED
     val_relevance_scores_file = params.DECISION_RELEVANCE_SCORE_VAL_EXPANDED
-    model_save_folder = params.MODEL_SAVE_FOLDER
     learning_rate = params.LEARNING_RATE
     num_epochs = params.NUM_EPOCHS
     train_visual_feat_file = params.TRAIN_VISUAL_FEATURE_FILE
     val_visual_feat_file = params.VAL_VISUAL_FEATURE_FILE
     batch_size = params.BATCH_SIZE
     keep_prob = params.KEEP_PROB
+    model_save_folder = os.path.join(params.MODEL_SAVE_FOLDER, params.MODEL_VERSION)
+    os.makedirs(model_save_folder, exist_ok=True)
+    model_path = os.path.join(model_save_folder, 'flex')
 
     # -------- Load Data ---------
     data_dict = pickle.load(open(data_dictionary_name, 'rb'))
@@ -42,10 +48,8 @@ def train_flex():
     num_train = x_sentence_train.shape[0]
     num_validation = x_sentence_val.shape[0]
 
-    print("Num train:", num_train)
-    print("Num val:", num_validation, "\n")
-
-    os.makedirs(model_save_folder, exist_ok=True)
+    print("Number of train instances:", num_train)
+    print("Number of val instances:", num_validation, "\n")
 
     model_params = {
         'img_embed_size': params.IMG_EMBED_SIZE,
@@ -58,7 +62,7 @@ def train_flex():
         'lambda_value': params.LAMBDA_VALUE,
         'img_feature_size': params.FEATURE_VECTOR_SIZE}
 
-    nn = FLEX(model_params)
+    flex_model = FLEX(model_params)
     print(model_params)
     print("Done Initializing FLEX")
 
@@ -68,31 +72,27 @@ def train_flex():
         'train_loss': [],
     }
 
-    model_path = os.path.join(model_save_folder, 'flex')
-    # nn.save(model_path)
-    #
-    # nn.load(model_path)
     best_val_loss = float("inf")
 
     for epoch in range(num_epochs):
         print("\n------Epoch %d------" % (epoch + 1))
 
-        train_loss = nn.train_epoch(visual_feat_file=train_visual_feat_file,
-                                    x_word_seq=x_sentence_train,
-                                    y_word_seq=y_sentence_train,
-                                    lengths=lengths_train,
-                                    words_relevance_scores=train_relevance_scores,
-                                    learning_rate=learning_rate,
-                                    batch_size=batch_size,
-                                    keep_prob=keep_prob)
+        train_loss = flex_model.train_epoch(visual_feat_file=train_visual_feat_file,
+                                            x_word_seq=x_sentence_train,
+                                            y_word_seq=y_sentence_train,
+                                            lengths=lengths_train,
+                                            words_relevance_scores=train_relevance_scores,
+                                            learning_rate=learning_rate,
+                                            batch_size=batch_size,
+                                            keep_prob=keep_prob)
 
-        val_loss = nn.validate_epoch(visual_feat_file=val_visual_feat_file,
-                                     x_word_seq=x_sentence_val,
-                                     y_word_seq=y_sentence_val,
-                                     lengths=lengths_val,
-                                     words_relevance_scores=val_relevance_scores,
-                                     batch_size=batch_size,
-                                     keep_prob=1)
+        val_loss = flex_model.validate_epoch(visual_feat_file=val_visual_feat_file,
+                                             x_word_seq=x_sentence_val,
+                                             y_word_seq=y_sentence_val,
+                                             lengths=lengths_val,
+                                             words_relevance_scores=val_relevance_scores,
+                                             batch_size=batch_size,
+                                             keep_prob=1)
 
         logs['train_loss'].append(train_loss)
         logs['val_loss'].append(val_loss)
@@ -103,7 +103,7 @@ def train_flex():
 
         if val_loss < best_val_loss:
             print("Saving model")
-            nn.save(model_path)
+            flex_model.save(model_path)
             best_val_loss = val_loss
         else:
             learning_rate /= 2  # anneal learning rate
