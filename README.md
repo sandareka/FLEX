@@ -3,11 +3,10 @@ Tensorflow implementation of [FLEX: Faithful Linguistic Explanations for Neural 
 
 ![alt text](https://github.com/sandareka/FLEX-Faithful-Linguistic-Explanations-for-Neural-Net-Based-Model-Decisions/blob/master/Images/flex_overview.jpeg)
 
-### Generate Explanations
----
+## Generate Explanations
 
-### Citation
----
+
+## Citation
 ```@inproceedings{wickramanayake2019flex,
   title={FLEX: Faithful Linguistic Explanations for Neural Net Based Model Decisions},
   author={Wickramanayake, Sandareka and Hsu, Wynne and Lee, Mong Li},
