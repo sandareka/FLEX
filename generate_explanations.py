@@ -8,10 +8,6 @@ import pickle
 import params_cub as params
 
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-
-
 def generate_explanations_for_one_image(image_name):
     """
     Generate explanations for one image in the test set
@@ -112,7 +108,7 @@ def generate_explanations():
     data_f = tables.open_file(params.TEST_VISUAL_FEATURE_FILE, mode='r')
     # -------- WRITE EXPLANATIONS --------
     explanations = []
-    for img_name in test_names:
+    for i, img_name in enumerate(test_names):
         index = test_names.index(img_name)
         feat = data_f.root.data[index, :]
         feat = np.expand_dims(feat, axis=0)
@@ -120,10 +116,10 @@ def generate_explanations():
         sent = [id_to_word.get(s) for s in indices]
         sent = detokenizer.detokenize(sent, return_str=True)
         explanation = test_names[index] + ": " + sent
-        print(explanation)
+        print(str(i)+':'+explanation)
         explanations.append(explanation)
 
-    target = open(os.path.join(params.MODEL_SAVE_FOLDER, opt.model_version, 'explanations_' + opt.model_version), 'w')
+    target = open(os.path.join(params.MODEL_SAVE_FOLDER, opt.model_version, 'explanations_' + opt.model_version+".txt"), 'w')
     target.write('\n'.join(explanations))
     target.close()
 
