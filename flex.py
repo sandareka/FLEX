@@ -114,15 +114,13 @@ class FLEX(object):
         score = tf.reduce_max(score, 2)
 
         # -------- Calculate cross entropy loss --------
-        self.cross_entropy_loss = self.calculate_cross_entropy(score)  # check here
+        self.cross_entropy_loss = self.calculate_cross_entropy(score)
 
         # -------- Calculate final loss --------
         self.final_loss = tf.reduce_mean(self.cross_entropy_loss)
 
         # -------- Optimizer --------
-        self.global_step = tf.Variable(0, name='global_step', trainable=False)
-        self.decay_learning_rate = tf.train.exponential_decay(self.learning_rate, self.global_step, 100000, 0.96, staircase=True)
-        self.optimize_step = tf.train.AdamOptimizer(self.decay_learning_rate).minimize(self.final_loss)
+        self.optimize_step = tf.train.AdamOptimizer(self.learning_rate_input).minimize(self.final_loss)
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))

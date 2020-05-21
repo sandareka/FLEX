@@ -85,6 +85,7 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
     :param descriptions_relevant_words:
     :param decision_relevance_score_file:
     :param decision_relevance_score_dict_file:
+    :param descriptions_file:
     :return:
     """
     # -------- Load data dictionary and get vocab --------
@@ -105,7 +106,6 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
 
     # print("Finding important and more important attributes and their values.....")
     image_decision_relevant_words = {}
-    # with open('co_results/matching_words_08_11_sm_w.txt', 'r') as f:
     with open(descriptions_relevant_words, 'r') as f:
         decision_relevant_words = f.readlines()
     for k in range(len(decision_relevant_words)):
@@ -116,7 +116,7 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
         lemma_keys = lemma_dict[image_name].keys()
         included_lemmas = set(lemma_keys).intersection(set(words))
 
-        for l in list(included_lemmas):  # need to verify
+        for l in list(included_lemmas):
             words = words + list(lemma_dict[image_name][l])
 
         if image_name not in image_decision_relevant_words.keys():
@@ -131,7 +131,7 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
     # -------- Calculate the score for words w.r.t. decision as decision_score = -log(number of words relevant to the decision/len of vocab) --------
     # -------- Total score of a word becomes decision_score+img_score
     for key, value in image_decision_relevant_words.items():
-        no_relevant_words = np.sum([x for x in image_decision_relevant_words[key] if x == 1])
+        no_relevant_words = np.sum([x for x in image_decision_relevant_words[key] if x == 1]) + 0.00001
         weight = (np.log(no_relevant_words / len(vocab))) * (-1)
         for i in range(len(vocab)):
             if image_decision_relevant_words[key][i] == 1:
@@ -152,8 +152,7 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
     decision_relevance_scores_all_dict = {}
     for i in range(len(image_names)):
         image_name = image_names[i]
-        if image_name in decision_relevance_scores_dictionary.keys():
-            value = decision_relevance_scores_dictionary[image_name]
+        value = decision_relevance_scores_dictionary[image_name]
 
         decision_relevance_scores[i, :] = value
         decision_relevance_scores_all_dict[image_name] = value
@@ -164,7 +163,7 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
 
 
 def expand_words_weight_vectors(no_sent_per_image, img_names, decision_relevance_score, decision_relevance_score_expanded):
-    """ Expland decision relevance scores for each image for the number of sentences describing that image
+    """ Expand decision relevance scores for each image for the number of sentences describing that image
     :return:
     """
 
@@ -175,9 +174,7 @@ def expand_words_weight_vectors(no_sent_per_image, img_names, decision_relevance
     f = open(img_names, 'r')
     for line in f.readlines():
         image_name = line.rstrip("\n\r").split("/")[1]
-        num = num_for_each_image[image_name]
-        for k in range(num):
-            image_names.append(line.rstrip("\n\r").split("/")[1])
+        image_names.append(image_name)
 
     calculated_relevance = np.load(decision_relevance_score)
     final_relevance_scores = []

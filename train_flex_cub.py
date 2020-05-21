@@ -22,8 +22,10 @@ def train_flex():
     batch_size = params.BATCH_SIZE
     keep_prob = params.KEEP_PROB
     model_save_folder = os.path.join(params.MODEL_SAVE_FOLDER, params.MODEL_VERSION)
-    os.makedirs(model_save_folder, exist_ok=True)
     model_path = os.path.join(model_save_folder, 'flex')
+
+    if not os.path.exists(model_save_folder):
+        os.makedirs(model_save_folder)
 
     # -------- Load Data ---------
     data_dict = pickle.load(open(data_dictionary_name, 'rb'))
@@ -106,11 +108,11 @@ def train_flex():
             flex_model.save(model_path)
             best_val_loss = val_loss
         else:
-            learning_rate /= 2  # anneal learning rate
+            learning_rate /= 2
             pickle.dump(logs, open(os.path.join(model_save_folder, 'logs.pkl'), 'wb'))
 
     print("Writing Metrics to file...")
-    pickle.dump(logs, open(os.path.join(model_path, 'logs.pkl'), 'wb'))
+    pickle.dump(logs, open(os.path.join(model_save_folder, 'logs.pkl'), 'wb'))
 
 
 if __name__ == '__main__':

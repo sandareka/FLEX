@@ -7,11 +7,14 @@ import numpy as np
 import pickle
 import params_cub as params
 
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
+
 
 def generate_explanations_for_one_image(image_name):
     """
     Generate explanations for one image in the test set
-    :param image_name:
+    :param image_name: Name of the image for which you need to generate the explanation
     :return:
     """
     # -------- LOAD DATA --------
@@ -50,7 +53,7 @@ def generate_explanations_for_one_image(image_name):
 
     data_f = tables.open_file(params.TEST_VISUAL_FEATURE_FILE, mode='r')
 
-    # -------- WRITE EXPLANATIONS --------
+    # -------- GENERATE EXPLANATIONS --------
 
     index = test_names.index(image_name)
     feat = data_f.root.data[index, :]
@@ -106,7 +109,7 @@ def generate_explanations():
     detokenizer = MosesDetokenizer()
 
     data_f = tables.open_file(params.TEST_VISUAL_FEATURE_FILE, mode='r')
-    # -------- WRITE EXPLANATIONS --------
+    # -------- GENERATE EXPLANATIONS --------
     explanations = []
     for i, img_name in enumerate(test_names):
         index = test_names.index(img_name)

@@ -184,6 +184,9 @@ def main():
     test_no_sent_per_image_file = params.TEST_NO_SENT_PER_IMAGE
     data_dictionary_name = params.DATA_DIC_NAME
 
+    if not os.path.exists(params.DATA_DIRECTORY):
+        os.makedirs(params.DATA_DIRECTORY)
+
     prepare_data(text_desc_folder, train_img_names, train_descriptions_file, train_no_sent_per_image_file, val_img_names, val_descriptions_file, val_no_sent_per_image_file, test_img_names,
                  test_descriptions_file, test_no_sent_per_image_file, data_dictionary_name)
 

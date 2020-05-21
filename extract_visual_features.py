@@ -115,8 +115,8 @@ def create_final_features(visual_feature_file_name, feature_vector_size, image_n
     atom = tables.Float64Atom()
     array_c = f.create_earray(f.root, 'data', atom, (0, feature_vector_size))
 
-    with open(os.path.join(image_name_file), 'rb') as f:
-        images = [line.rstrip().decode('utf-8') for line in f.readlines()]
+    with open(os.path.join(image_name_file), 'rb') as fk:
+        images = [line.rstrip().decode('utf-8') for line in fk.readlines()]
 
     # -------- Load number of sentences per image --------
     num_for_each_image = np.load(no_sent_per_image, allow_pickle=True).item()
@@ -179,7 +179,7 @@ def main():
     no_sent_per_image = params.VAL_NO_SENT_PER_IMAGE
     create_final_features(visual_feature_file_name, feature_vector_size, image_name_file, no_sent_per_image, save_folder_path)
 
-    # -------- For test images --------
+    # # -------- For test images --------
     visual_feature_file_name = params.TEST_VISUAL_FEATURE_FILE
     image_name_file = params.TEST_IMAGE_NAMES
     no_sent_per_image = params.TEST_NO_SENT_PER_IMAGE
