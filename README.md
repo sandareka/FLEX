@@ -24,7 +24,7 @@ Explaining the decisions of a Deep Learning Network is imperative to safeguard e
    This zip file contains decision relevance vectors for train and val datasets as well as features for train, validation and test cub images obtained from compact-bilinear classifer.
    
 4. Download trained flex model.
-   Download trained flex model for cub dataset from [here](https://drive.google.com/file/d/1RzFiRFpk8sZW5KBEpdSgVGJlFJvEIDQN/view?usp=sharing) and unzip.
+   Download trained flex model for cub dataset from [here](https://drive.google.com/file/d/18K2sO5npdauMrXLk_pVsSUMM2704ql37/view?usp=sharing) and unzip.
    
    ```unzip flex_cub_trained_model.zip -d trained_models/cub/```
 
