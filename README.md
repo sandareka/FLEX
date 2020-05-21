@@ -13,17 +13,18 @@ Explaining the decisions of a Deep Learning Network is imperative to safeguard e
 
    ```pip install -r requirements.txt```
 
-   This code demonstrates the flex model developed to explain decisions of Compact-Bilinear Pooling classifier by [Yang Gao](https://arxiv.org/abs/1511.06062). The classifier is trained with Caffe. Thus, if you want generate image features or derive decision relevant words using this code by yourself, you need to set up Caffe too. Please use the version specified in [Yang Gao's repo](https://github.com/gy20073/compact_bilinear_pooling/tree/master/caffe-20160312).
+   This code demonstrates the flex model developed to explain decisions of Compact-Bilinear Pooling classifier by [Yang Gao](https://arxiv.org/abs/1511.06062). The classifier is trained with Caffe. Thus, if you want generate image features or derive decision relevant words using this code by yourself, you need to set up Caffe too. Please use the version specified in [Yang Gao's repo](https://github.com/gy20073/compact_bilinear_pooling/tree/master/caffe-20160312). 
+   Download Compact-Bilinear Pooling classifier weights [here](https://drive.google.com/file/d/1fFNu1h3okT4K5KPWSPD4jOVtOly6Utab/view?usp=sharing).
 
 3. Download data.
-   Download all the required to train or use a flex model on [CUB dataset](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) from here. Unzip to ```data/cub``` folder. 
+   Download all the required to train or use a flex model on [CUB dataset](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) from [here](https://drive.google.com/file/d/1Ft9zz__7L_MUMxDlEttLaqqMTIqhLZqg/view?usp=sharing). Unzip to ```data/cub``` folder. 
    
    ```unzip flex_cub_data.zip -d data/cub/```
    
    This zip file contains decision relevance vectors for train and val datasets as well as features for train, validation and test cub images obtained from compact-bilinear classifer.
    
 4. Download trained flex model.
-   Download trained flex model for cub dataset from here and unzip.
+   Download trained flex model for cub dataset from [here](https://drive.google.com/file/d/1RzFiRFpk8sZW5KBEpdSgVGJlFJvEIDQN/view?usp=sharing) and unzip.
    
    ```unzip flex_cub_trained_model.zip -d trained_models/cub/```
 
