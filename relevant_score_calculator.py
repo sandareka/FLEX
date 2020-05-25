@@ -108,10 +108,11 @@ def calculate_decision_relevance_scores(data_dictionary_name, img_names, descrip
     image_decision_relevant_words = {}
     with open(descriptions_relevant_words, 'r') as f:
         decision_relevant_words = f.readlines()
+
     for k in range(len(decision_relevant_words)):
         image_name = decision_relevant_words[k].rstrip("\n\r").split("#")[0]
         decision_relevant_words[k] = decision_relevant_words[k].rstrip("\n\r").split("#")[1].replace("-", ",").replace(" ", ",")
-        words = decision_relevant_words[k] .split(',')
+        words = decision_relevant_words[k].split(',')
 
         lemma_keys = lemma_dict[image_name].keys()
         included_lemmas = set(lemma_keys).intersection(set(words))
@@ -190,7 +191,6 @@ def expand_words_weight_vectors(no_sent_per_image, img_names, decision_relevance
 
 
 def main():
-
     data_dictionary_name = params.DATA_DIC_NAME
 
     # -------- For train data --------

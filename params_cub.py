@@ -2,7 +2,6 @@ DATA_DIRECTORY = 'data/cub/'
 
 DATA_DIC_NAME = DATA_DIRECTORY+"data_dict.pkl"
 
-TRAIN_NOUNS_ADJECTIVES = DATA_DIRECTORY+'train_noun_adjectives.npy'
 TRAIN_DESC_FILE = DATA_DIRECTORY+'train_descriptions.txt'
 VAL_DESC_FILE = DATA_DIRECTORY+'val_descriptions.txt'
 TEST_DESC_FILE = DATA_DIRECTORY+'test_descriptions.txt'
@@ -36,12 +35,12 @@ TEST_IMAGE_NAMES = DATA_DIRECTORY+"test_no_cub.txt"
 # -------- Relevance score calculation related information --------
 NEETA = 0.80
 NO_OF_TOP_FEATURE_MAPS_FROM_LAYER = 5
-CO_OCCURRENCE_FILE_NAME_TRAIN = 'co_occurrence/co_occurrence_train.npy'
-CO_OCCURRENCE_FILE_NAME_VAL = 'co_occurrence/co_occurrence_val.npy'
-CO_OCCURRENCE_STAT_FILE_NAME_TRAIN = 'co_occurrence/co_occurrence_stat_train.npy'
-CO_OCCURRENCE_STAT_FILE_NAME_VAL = 'co_occurrence/co_occurrence_stat_val.npy'
-CO_OCCURRENCE_INFO_FOLDER = 'co_occurrence_info'
-CO_OCCURRENCE_STAT_INFO_FOLDER = 'co_occurrence_stat_info'
+CO_OCCURRENCE_FILE_NAME_TRAIN = 'co_occurrence/cub/co_occurrence_train.npy'
+CO_OCCURRENCE_FILE_NAME_VAL = 'co_occurrence/cub/co_occurrence_val.npy'
+CO_OCCURRENCE_STAT_FILE_NAME_TRAIN = 'co_occurrence/cub/co_occurrence_stat_train.npy'
+CO_OCCURRENCE_STAT_FILE_NAME_VAL = 'co_occurrence/cub/co_occurrence_stat_val.npy'
+CO_OCCURRENCE_INFO_FOLDER = 'co_occurrence_info/cub'
+CO_OCCURRENCE_STAT_INFO_FOLDER = 'co_occurrence_stat_info/cub'
 DECISION_RELEVANT_WORDS_TRAIN = DATA_DIRECTORY+'decision_relevant_words.txt'
 DECISION_RELEVANT_WORDS_VAL = DATA_DIRECTORY+'decision_relevant_words_val.txt'
 DECISION_RELEVANCE_SCORE_TRAIN = DATA_DIRECTORY+'train_decision_relevance_scores.npy'
@@ -50,6 +49,9 @@ DECISION_RELEVANCE_SCORE_TRAIN_EXPANDED = DATA_DIRECTORY+'train_decision_relevan
 DECISION_RELEVANCE_SCORE_VAL_EXPANDED = DATA_DIRECTORY+'val_decision_relevance_scores_expanded.npy'
 DECISION_RELEVANCE_SCORE_DICT_TRAIN = DATA_DIRECTORY+'train_decision_relevance_scores_dict.npy'
 DECISION_RELEVANCE_SCORE_DICT_VAL = DATA_DIRECTORY+'val_decision_relevance_scores_dict.npy'
+
+TRAIN_NOUNS_ADJECTIVES = DATA_DIRECTORY+'train_noun_adjectives_words.npy'
+VAL_NOUNS_ADJECTIVES = DATA_DIRECTORY+'val_noun_adjectives_words.npy'
 
 
 # -------- Visual feature information --------

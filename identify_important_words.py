@@ -7,6 +7,7 @@ import os
 from extract_visual_features import grad_cam
 import params_cub as params
 from os import makedirs
+from utils import pre_pro_build_word_vocab, get_captions
 
 
 def transform_img(img, img_width, img_height):
@@ -58,11 +59,8 @@ def calculate_co_occurrence(image_relevant_words, vocab_size, word_to_ix, image_
     co_occurrence_matrix = np.zeros(shape=(total_number_of_channels, vocab_size))
 
     # -------- Read img names --------
-    with open(image_names_file, 'r') as f:
-        img_info = f.readlines()
-    image_names = []
-    for w in range(len(img_info)):
-        image_names.append(img_info[w].rstrip("\n\r").split("/")[1])
+    with open(image_names_file, 'rb') as f:
+        image_names = [line.rstrip().decode('utf-8') for line in f.readlines()]
 
     nouns_adjectives = {}
     for key, value in image_relevant_words.items():
@@ -83,19 +81,16 @@ def calculate_co_occurrence(image_relevant_words, vocab_size, word_to_ix, image_
     for w in range(len(class_info)):
         classes.append(class_info[w].split(".")[1].rstrip("\n\r").lower())
 
-    if not os.path.exists(co_occurrence_info_folder):
-        makedirs(os.path.join(co_occurrence_info_folder))
-
     for i in range(len(image_names)):
 
         if i % 100 == 0:
             print('Completed : %d / %d' % (i, len(image_names)))
 
-        image_name = image_names[i]
+        image_name = image_names[i].split('/')[1]
 
         co_occurrence_info = {}
 
-        image_path = image_folder + image_name
+        image_path = os.path.join(image_folder, image_names[i])
         class_name = '_'.join(image_name.split("_")[:-2])
         class_id = classes.index(class_name.lower())
 
@@ -124,7 +119,7 @@ def calculate_co_occurrence(image_relevant_words, vocab_size, word_to_ix, image_
             co_occurrence_info[layer_name]['mean_activations'] = mean_activations
 
             # -------- Find weight of each feature map in the layer --------
-            weights = grad_cam(net, class_id, layer_name, image_name, final_layer, data_layer)
+            weights = grad_cam(net, class_id, layer_name, final_layer, data_layer)
             co_occurrence_info[layer_name]['weights'] = weights
 
             # -------- Normalize feature maps and find most important feature maps --------
@@ -193,13 +188,9 @@ def find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, c
     co_occurrence_matrix = np.load(co_occurrence_file)
     co_occurrence_stat_matrix = np.zeros(shape=(1472, vocab_size))
 
-    # no_feats_from_layer = 5
-
-    with open(image_names_file, 'r') as f:
-        img_info = f.readlines()
-    image_names = []
-    for w in range(len(img_info)):
-        image_names.append(img_info[w].rstrip("\n\r").split("/")[1])
+    # -------- Read img names --------
+    with open(image_names_file, 'rb') as f:
+        image_names = [line.rstrip().decode('utf-8') for line in f.readlines()]
 
     # -------- Calculate co-occurrence scores --------
     co_occurrence_stat_matrix = find_co_occurrence_statistics(co_occurrence_matrix, co_occurrence_stat_matrix)
@@ -231,12 +222,12 @@ def find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, c
 
         co_occurrence_stat_info = {}
         all_words = []
-        image_name = image_names[i]
+        image_name = image_names[i].split('/')[1]
 
         if i % 100 == 0:
             print('Completed : %d / %d' % (i, len(image_names)))
 
-        image_path = image_folder + image_name
+        image_path = os.path.join(image_folder, image_names[i])
 
         pre_processed_image = caffe.io.load_image(image_path)
         net.blobs['data'].data[...] = transformer.preprocess('data', pre_processed_image)
@@ -250,7 +241,7 @@ def find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, c
         for k in range(len(layers)):
             layer_name = layers[k]
             co_occurrence_stat_info[layer_name] = {}
-            weights_l = grad_cam(net, class_id, layer_name, image_name, final_layer)
+            weights_l = grad_cam(net, class_id, layer_name, final_layer)
             co_occurrence_stat_info[layer_name]['layer_weights'] = weights_l
             layer_weights.append(weights_l)
 
@@ -324,7 +315,7 @@ def find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, c
 
             co_occurrence_stat_info[layer_name]['pre_weights'] = prev_weights
 
-        output_file_path = os.path.join(co_occurrence_stat_info_folder, image_name + '.npz')
+        output_file_path = os.path.join(co_occurrence_stat_info_folder, image_name.split('.')[0] + '.npz')
         np.savez_compressed(output_file_path, x=co_occurrence_stat_info)
 
         # From the identified words select only image relevant words
@@ -342,11 +333,6 @@ def find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, c
 
 
 def main():
-    image_relevant_words = np.load(params.TRAIN_NOUNS_ADJECTIVES, allow_pickle=True).item()
-    data_dict = pickle.load(open(params.DATA_DIC_NAME, 'rb'))
-    vocab_size = data_dict['num_words']
-    ix_to_word = data_dict['id_to_word']
-    word_to_ix = data_dict['word_to_id']
     image_folder = params.IMAGE_FOLDER
     classifier_prototxt_file = params.CLASSIFIER_PROTOTXT_FILE
     classifier_weights_file = params.CLASSIFIER_WEIGHT_FILE
@@ -361,6 +347,12 @@ def main():
     co_occurrence_info_folder = params.CO_OCCURRENCE_INFO_FOLDER
     co_occurrence_stat_info_folder = params.CO_OCCURRENCE_STAT_INFO_FOLDER
 
+    if not os.path.exists(co_occurrence_stat_info_folder):
+        os.makedirs(co_occurrence_stat_info_folder)
+
+    if not os.path.exists(co_occurrence_info_folder):
+        makedirs(os.path.join(co_occurrence_info_folder))
+
     # -------- For train dataset --------
 
     image_names_file = params.TRAIN_IMAGE_NAMES
@@ -368,15 +360,22 @@ def main():
     co_occurrence_stat_file = params.CO_OCCURRENCE_STAT_FILE_NAME_TRAIN
     no_feats_from_layer = params.NO_OF_TOP_FEATURE_MAPS_FROM_LAYER
     decision_relevant_file = params.DECISION_RELEVANT_WORDS_TRAIN
+    train_noun_adjectives = np.load(params.TRAIN_NOUNS_ADJECTIVES, allow_pickle=True).item()
+
+    noun_adjective_list = []
+    for key, value in train_noun_adjectives.items():
+        noun_adjective_list.append(' '.join(list(value)))
+    word_to_id, id_to_word, _ = pre_pro_build_word_vocab(noun_adjective_list, word_count_threshold=3)
+    vocab_size = len(word_to_id)
 
     co_occurrence_folder = co_occurrence_file_name.split('/')[0]
 
     if not os.path.exists(co_occurrence_folder):
         makedirs(os.path.join(co_occurrence_folder))
 
-    calculate_co_occurrence(image_relevant_words, vocab_size, word_to_ix, image_folder, classifier_prototxt_file, classifier_weights_file, class_file, image_names_file,
-                            final_layer, data_layer, layers, neeta, no_of_channels, image_width, image_height, co_occurrence_file_name, co_occurrence_info_folder)
-    find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, co_occurrence_file_name, layers, no_of_channels, image_names_file, classifier_prototxt_file, classifier_weights_file,
+    calculate_co_occurrence(train_noun_adjectives, vocab_size, word_to_id, image_folder, classifier_prototxt_file, classifier_weights_file, class_file, image_names_file,
+                             final_layer, data_layer, layers, neeta, no_of_channels, image_width, image_height, co_occurrence_file_name, co_occurrence_info_folder)
+    find_decision_relevant_words(train_noun_adjectives, vocab_size, id_to_word, co_occurrence_file_name, layers, no_of_channels, image_names_file, classifier_prototxt_file, classifier_weights_file,
                                  final_layer, class_file, image_folder, co_occurrence_stat_file, no_feats_from_layer, image_width, image_height, co_occurrence_stat_info_folder, decision_relevant_file)
 
     # -------- For val dataset --------
@@ -386,15 +385,11 @@ def main():
     co_occurrence_stat_file = params.CO_OCCURRENCE_STAT_FILE_NAME_VAL
     no_feats_from_layer = params.NO_OF_TOP_FEATURE_MAPS_FROM_LAYER
     decision_relevant_file = params.DECISION_RELEVANT_WORDS_VAL
+    val_noun_adjectives = np.load(params.VAL_NOUNS_ADJECTIVES, allow_pickle=True).item()
 
-    co_occurrence_folder = co_occurrence_file_name.split('/')[0]
-
-    if not os.path.exists(co_occurrence_folder):
-        makedirs(os.path.join(co_occurrence_folder))
-
-    calculate_co_occurrence(image_relevant_words, vocab_size, word_to_ix, image_folder, classifier_prototxt_file, classifier_weights_file, class_file, image_names_file,
+    calculate_co_occurrence(val_noun_adjectives, vocab_size, word_to_id, image_folder, classifier_prototxt_file, classifier_weights_file, class_file, image_names_file,
                             final_layer, data_layer, layers, neeta, no_of_channels, image_width, image_height, co_occurrence_file_name, co_occurrence_info_folder)
-    find_decision_relevant_words(image_relevant_words, vocab_size, ix_to_word, co_occurrence_file_name, layers, no_of_channels, image_names_file, classifier_prototxt_file, classifier_weights_file,
+    find_decision_relevant_words(val_noun_adjectives, vocab_size, id_to_word, co_occurrence_file_name, layers, no_of_channels, image_names_file, classifier_prototxt_file, classifier_weights_file,
                                  final_layer, class_file, image_folder, co_occurrence_stat_file, no_feats_from_layer, image_width, image_height, co_occurrence_stat_info_folder, decision_relevant_file)
 
 

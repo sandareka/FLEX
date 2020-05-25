@@ -61,7 +61,7 @@ def extract_visual_feats_and_gradients(all_image_name_file, prototxt_file, weigh
     predicted_class_list = []
 
     # ------- Get image names --------
-    with open(os.path.join(all_image_name_file), 'rb') as f:
+    with open(all_image_name_file, 'rb') as f:
         images = [line.rstrip().decode('utf-8') for line in f.readlines()]
 
     # -------- Load the Caffe model --------
@@ -78,7 +78,7 @@ def extract_visual_feats_and_gradients(all_image_name_file, prototxt_file, weigh
     for k in range(len(images)):
 
         image_name = images[k].split("/")[1]
-        image_path = os.path.join(image_folder, image_name)
+        image_path = os.path.join(image_folder, images[k])
 
         pre_processed_image = caffe.io.load_image(image_path)
         net.blobs['data'].data[...] = transformer.preprocess('data', pre_processed_image)
@@ -164,6 +164,9 @@ def main():
     layer_name = params.LAYER_NAME
     final_layer = params.FINAL_LAYER_NAME
     data_layer = params.DATA_LAYER_NAME
+
+    if not os.path.exists(save_folder_path):
+        os.makedirs(save_folder_path)
 
     extract_visual_feats_and_gradients(all_image_name_file, prototxt_file, weight_file, image_width, image_height, image_folder, layer_name, save_folder_path, final_layer, data_layer)
 
