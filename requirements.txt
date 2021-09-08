@@ -5,7 +5,7 @@ nltk==3.2.5
 numpy==1.17.3
 opencv-python==3.4.0.12
 pandas==0.21.0
-Pillow==6.2.0
+Pillow==8.3.2
 protobuf==3.5.0.post1
 scikit-learn==0.19.1
 scipy==1.3.0
