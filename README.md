@@ -58,7 +58,8 @@ Explaining the decisions of a Deep Learning Network is imperative to safeguard e
 
 
 ## Citation
-```@inproceedings{wickramanayake2019flex,
+```
+@inproceedings{wickramanayake2019flex,
   title={FLEX: Faithful Linguistic Explanations for Neural Net Based Model Decisions},
   author={Wickramanayake, Sandareka and Hsu, Wynne and Lee, Mong Li},
   booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
